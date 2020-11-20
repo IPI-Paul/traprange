@@ -229,7 +229,18 @@ public class MAIN {
             return defaultValue;
         } else if (argIdx < args.length - 1) {
             if ("-dl".equals(args[argIdx])) {
-                return args[argIdx + 1];
+                switch(args[argIdx + 1]) {
+                    case "\\t":
+                        return "\t";
+                    case "\\n":
+                        return "\n";
+                    case "\\r":
+                        return "\r";
+                    case "\\f":
+                        return "\f";
+                    default:
+                        return args[argIdx + 1];
+                }      
             } else {
                 return args[argIdx + 1].trim();
             }
