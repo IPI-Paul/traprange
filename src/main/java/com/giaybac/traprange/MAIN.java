@@ -29,6 +29,7 @@ public class MAIN {
     /**
      * -in: source <br/>
      * -out: target  <br/>
+     * -dl: file delimiter like \t or , (default=;) <br/>
      * -el: except lines. Ex: 1,2,3-1,6@8 #line 6 in page 8  <br/>
      * -p: page  <br/>
      * -ep: except page <br/>
@@ -89,8 +90,13 @@ public class MAIN {
             Writer writer = new OutputStreamWriter(new FileOutputStream(out), "UTF-8");
             try {
                 for (Table table : tables) {
-                    writer.write("Page: " + (table.getPageIdx() + 1) + "\n");
-                    writer.write(table.toHtml());
+                    if (out.contains(".htm")) {
+                        writer.write("Page: " + (table.getPageIdx() + 1) + "\n");
+                        writer.write(table.toHtml());
+                    } else {
+                        table.setDelimiter(getArg(args, "dl", ";"));
+                        writer.write(table.toString());
+                    }
                 }
             } finally {
                 try {
@@ -108,6 +114,7 @@ public class MAIN {
         help.append("Argument list: \n")
                 .append("\t-in: (required) absolute pdf location path. Ex: \"/Users/thoqbk/table.pdf\"\n")
                 .append("\t-out: (required) absolute output file. Ex: \"/Users/thoqbk/table.html\"\n")
+                .append("\t-dl: file delimiter like \t or , (default=;)\n")
                 .append("\t-el: skip lines. For example, to skip lines 1,2,3 and -1 (last line) in all pages and line 4 in page 8, the value should be: \"1,2,3,-1,4@8\"\n")
                 .append("\t-p: only parse these pages. Ex: 1,2,3\n")
                 .append("\t-ep: all pages except these pages. Ex: 1,2\n")
@@ -133,7 +140,17 @@ public class MAIN {
                 try {
                     retVal.add(Integer.parseInt(intInString.trim()));
                 } catch (Exception e) {
-                    throw new RuntimeException("Invalid argument (-" + name + "): " + intsInString, e);
+                    try { 
+                        String[] intIn_String = intInString.split("-");
+                        int start = Integer.parseInt(intIn_String[0].trim());
+                        int end = Integer.parseInt(intIn_String[1].trim());
+                        for (int i = start; i <= end; i++) {
+                            retVal.add(i);
+                        }
+                    }
+                    catch(Exception ex) {
+                        throw new RuntimeException("Invalid argument (-" + name + "): " + intsInString, ex);
+                    }
                 }
             }
         }
@@ -167,7 +184,17 @@ public class MAIN {
                     int lineIdx = Integer.parseInt(exceptLineString.trim());
                     retVal.add(new Integer[]{lineIdx});
                 } catch (Exception e) {
-                    throw new RuntimeException("Invalid except lines argument (-el): " + exceptLinesInString, e);
+                    try { 
+                        String[] exceptLinesStrings = exceptLineString.split("-");
+                        int start = Integer.parseInt(exceptLinesStrings[0].trim());
+                        int end = Integer.parseInt(exceptLinesStrings[1].trim());
+                        for (int i = start; i <= end; i++) {
+                            retVal.add(new Integer[]{i});
+                        }
+                    }
+                    catch(Exception ex) {
+                        throw new RuntimeException("Invalid except lines argument (-el): " + exceptLinesInString, ex);
+                    }
                 }
             }
         }
@@ -201,7 +228,11 @@ public class MAIN {
         if (argIdx == -1) {
             return defaultValue;
         } else if (argIdx < args.length - 1) {
-            return args[argIdx + 1].trim();
+            if ("-dl".equals(args[argIdx])) {
+                return args[argIdx + 1];
+            } else {
+                return args[argIdx + 1].trim();
+            }
         } else {
             throw new RuntimeException("Missing argument value. Argument name: " + name);
         }
