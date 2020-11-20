@@ -17,6 +17,11 @@ public class Table {
     private final int pageIdx;
     private final List<TableRow> rows = new ArrayList<>();
     private final int columnsCount;
+    private String delimiter;
+    
+    public void setDelimiter(String dl) {
+        delimiter = dl;
+    } 
 
     public Table(int idx, int columnsCount) {
         this.pageIdx = idx;
@@ -52,6 +57,7 @@ public class Table {
             retVal.append("<table border='1'>");
         }
         for (TableRow row : rows) {
+            row.setDelimiter(delimiter);
             if (inHtmlFormat) {
                 retVal.append("<tr>");
             } else if (retVal.length() > 0) {
@@ -69,7 +75,7 @@ public class Table {
                                     .append("</td>");
                         } else {
                             if (cell.getIdx() != 0) {
-                                retVal.append(";");
+                                retVal.append(delimiter);
                             }
                             retVal.append(cell.getContent());
                         }
@@ -80,7 +86,7 @@ public class Table {
                             retVal.append("<td>")
                                     .append("</td>");
                         } else if (columnIdx != 0) {
-                            retVal.append(";");
+                            retVal.append(delimiter);
                         }
                         columnIdx++;
                     } else {
@@ -91,7 +97,7 @@ public class Table {
                         retVal.append("<td>")
                                 .append("</td>");
                     } else if (columnIdx != 0) {
-                        retVal.append(";");
+                        retVal.append(delimiter);
                     }
                     columnIdx++;
                 }
