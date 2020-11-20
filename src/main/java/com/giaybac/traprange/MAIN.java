@@ -89,8 +89,12 @@ public class MAIN {
             Writer writer = new OutputStreamWriter(new FileOutputStream(out), "UTF-8");
             try {
                 for (Table table : tables) {
-                    writer.write("Page: " + (table.getPageIdx() + 1) + "\n");
-                    writer.write(table.toHtml());
+                    if (args[3].contains(".htm")) {
+                        writer.write("Page: " + (table.getPageIdx() + 1) + "\n");
+                        writer.write(table.toHtml());
+                    } else if (args[3].contains(".csv")) {
+                        writer.write(table.toString());
+                    }
                 }
             } finally {
                 try {
@@ -166,8 +170,17 @@ public class MAIN {
                 try {
                     int lineIdx = Integer.parseInt(exceptLineString.trim());
                     retVal.add(new Integer[]{lineIdx});
-                } catch (Exception e) {
-                    throw new RuntimeException("Invalid except lines argument (-el): " + exceptLinesInString, e);
+                } try { 
+                        String[] exceptLinesStrings = exceptLineString.split("-");
+                        int start = Integer.parseInt(exceptLinesStrings[0].trim());
+                        int end = Integer.parseInt(exceptLinesStrings[1].trim());
+                        for (int i = start; i <= end; i++) {
+                            retVal.add(new Integer[]{i});
+                        }
+                    }
+                    catch(Exception ex) {
+                        throw new RuntimeException("Invalid except lines argument (-el): " + exceptLinesInString, ex);
+                    }
                 }
             }
         }
