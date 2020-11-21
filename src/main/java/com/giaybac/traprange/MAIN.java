@@ -95,7 +95,7 @@ public class MAIN {
                         writer.write(table.toHtml());
                     } else {
                         table.setDelimiter(getArg(args, "dl", ";"));
-                        writer.write(table.toString());
+                        writer.write(table.toString() + "\n");
                     }
                 }
             } finally {
